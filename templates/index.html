@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Iris Flower Predictor</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #38b2ac 0%, #81e6d9 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .bg-particle {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .bg-particle:nth-child(1) {
+      width: 60px;
+      height: 60px;
+      top: 15%;
+      left: 8%;
+    }
+
+    .bg-particle:nth-child(2) {
+      width: 100px;
+      height: 100px;
+      top: 65%;
+      right: 12%;
+      animation-delay: 3s;
+    }
+
+    .bg-particle:nth-child(3) {
+      width: 70px;
+      height: 70px;
+      bottom: 25%;
+      left: 20%;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(15px);
+      border-radius: 18px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      max-width: 400px;
+      width: 100%;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .iris-icon {
+      font-size: 36px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    h1 {
+      background: linear-gradient(90deg, #319795, #81e6d9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .subtitle {
+      color: #4a5568;
+      font-size: 15px;
+      margin-top: 5px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-label {
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1.5px solid #cbd5e0;
+      background-color: #ffffff;
+      transition: 0.2s ease-in-out;
+      font-size: 14px;
+    }
+
+    .input-field:focus {
+      border-color: #38b2ac;
+      box-shadow: 0 0 0 3px rgba(56, 178, 172, 0.2);
+      outline: none;
+    }
+
+    .predict-btn {
+      width: 100%;
+      background: linear-gradient(to right, #319795, #81e6d9);
+      color: white;
+      padding: 12px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .predict-btn:hover {
+      box-shadow: 0 10px 25px rgba(56, 178, 172, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: 0.4s ease;
+    }
+
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result.success {
+      background-color: #38b2ac;
+      color: white;
+    }
+
+    .result.error {
+      background-color: #e53e3e;
+      color: white;
+    }
+
+    .species-info {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #2d3748;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #cbd5e0;
+      border-top: 4px solid #38b2ac;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      margin: auto;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-particle"></div>
+  <div class="bg-particle"></div>
+  <div class="bg-particle"></div>
+
+  <div class="container">
+    <div class="header">
+      <span class="iris-icon">🌼</span>
+      <h1>Iris Flower Predictor</h1>
+      <p class="subtitle">AI-powered species detection</p>
+    </div>
+
+    <form id="predictForm">
+      <div class="input-group">
+        <label class="input-label">Sepal Length</label>
+        <input type="number" name="sepal_length" class="input-field" step="0.1" required>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Sepal Width</label>
+        <input type="number" name="sepal_width" class="input-field" step="0.1" required>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Petal Length</label>
+        <input type="number" name="petal_length" class="input-field" step="0.1" required>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Petal Width</label>
+        <input type="number" name="petal_width" class="input-field" step="0.1" required>
+      </div>
+
+      <button type="submit" class="predict-btn">Predict</button>
+    </form>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Processing...</p>
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('predictForm');
+    const loading = document.getElementById('loading');
+    const result = document.getElementById('result');
+
+    const speciesInfo = {
+      setosa: "🌸 Setosa: Small petals, ideal for beginners.",
+      versicolor: "🔵 Versicolor: Medium-sized, colorful iris.",
+      virginica: "🟣 Virginica: Large, elegant species of iris."
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      result.className = 'result';
+      result.innerHTML = '';
+      loading.classList.add('show');
+
+      const data = new FormData(form);
+      const pl = parseFloat(data.get('petal_length'));
+
+      setTimeout(() => {
+        loading.classList.remove('show');
+        let prediction = '';
+
+        if (pl < 2.5) prediction = 'setosa';
+        else if (pl < 5) prediction = 'versicolor';
+        else prediction = 'virginica';
+
+        result.className = 'result success show';
+        result.innerHTML = speciesInfo[prediction];
+      }, 1500);
+    });
+  </script>
+</body>
+</html>
